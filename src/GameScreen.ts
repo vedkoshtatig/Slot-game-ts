@@ -12,10 +12,17 @@ export class GameScreen extends PIXI.Container{
     constructor(app:PIXI.Application){
         super();
         this.app=app;
-        this.reelArea = new ReelArea(this.app)
+        
         this.stakeControl = new StakeControl(this.app);
+        this.reelArea = new ReelArea(this.app,this.stakeControl)
         this.gameButtons = new GameButtons(this.app)
         this.textures = AssetLoader.textures;
+        this.gameButtons.onSpin = () => {
+        if (!this.reelArea.isBlurSpinning) {
+        this.reelArea.spin();
+        this.stakeControl.UpdateBalance();
+       }
+};
         this.build();
 
     }

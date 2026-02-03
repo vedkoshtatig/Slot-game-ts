@@ -8,6 +8,8 @@ export class StakeControl extends PIXI.Container {
     balance :number
     win : number
     maxCount :number
+    balanceText!: PIXI.Text;
+
 incBtn!: PIXI.Sprite;
   decBtn!: PIXI.Sprite;
   constructor(app:PIXI.Application) { 
@@ -69,7 +71,7 @@ incBtn!: PIXI.Sprite;
     
     const BalWin = new PIXI.Container();
     
-    const balanceText = new PIXI.Text({
+    this.balanceText = new PIXI.Text({
         text:`$${this.balance}\nBALANCE`,
         style:{
            fill:0xff000,
@@ -92,7 +94,7 @@ incBtn!: PIXI.Sprite;
     
     controls.addChild(this.incBtn,this.decBtn,StakeDisplay)
 
-    BalWin.addChild(balanceText,winText)
+    BalWin.addChild(this.balanceText,winText)
     winText.position.set(150,0)
     BalWin.position.set(150,this.app.screen.height-60)
 
@@ -143,5 +145,9 @@ incBtn!: PIXI.Sprite;
           this.decBtn.cursor="pointer"
           
     }
+   }
+   UpdateBalance(){
+    this.balance-=this.stakeAmount;
+    this.balanceText.text=`$${this.balance}\nBALANCE`
    }
 }
