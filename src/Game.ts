@@ -21,6 +21,6 @@ export class Game {
     });
     this.background = new Background(this.app);
    
-    this.app.stage.addChild(this.background,this.introScreen);
+    this.app.stage.addChild(this.background,this.gameScreen);
   }
 }

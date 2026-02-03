@@ -89,6 +89,8 @@ incBtn!: PIXI.Sprite;
         }
 
     });
+    
+    controls.addChild(this.incBtn,this.decBtn,StakeDisplay)
 
     BalWin.addChild(balanceText,winText)
     winText.position.set(150,0)
@@ -115,9 +117,9 @@ incBtn!: PIXI.Sprite;
          this.updateStakeUI()
     })
    
- 
+   
     
-    this.addChild(this.incBtn,this.decBtn,StakeDisplay,BalWin)
+    this.addChild(controls,BalWin)
   }
 
     updateStakeUI(){

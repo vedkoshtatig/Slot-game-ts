@@ -23,6 +23,19 @@ export class AssetLoader {
       decBtnHover:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/minusIcon_hover.png"),
       decBtnDisabled :await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/minusIcon_disabled.png"),
       stakeBg:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/darkBalance_bg.png"),
+      spinBtn:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/spineBtn_main_normal.png"),
+      spinBtnHover:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/spineBtn_main_hover.png"),
+      spinBtnDown:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/spineBtn_main_down.png"),
+      spinBtnDisabled:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/spineBtn_main_disabled.png"),
+      autoSpinBtn:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/menu_autospin_normal.png"),
+      autoSpinBtnHover:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/menu_autospin_hover.png"),
+      autoSpinBtnDown:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/menu_autospin_down.png"),
+      autoSpinBtnDisabled:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/menu_autospin_disabled.png"),
+      turboSpinBtn:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/menu_quickSpinOn_normal.png"),
+      turboSpinBtnHover:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/menu_quickSpinOn_hover.png"),
+      turboSpinBtnDown:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/menu_quickSpinOn_down.png"),
+      turboSpinBtnDisabled:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/menu_quickSpinOn_disabled.png"),
+      
       
     };
 
