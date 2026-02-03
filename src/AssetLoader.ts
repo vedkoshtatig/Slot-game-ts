@@ -1,0 +1,27 @@
+import * as PIXI from "pixi.js";
+export class AssetLoader {
+  static textures: Record<string, PIXI.Texture > = {};
+
+  static async load() {
+    this.textures = {
+      background: await PIXI.Assets.load("/sourceAssets/backgrounds/assets/bg.png"),
+      gameLogo: await PIXI.Assets.load("/sourceAssets/gameLogo/assets/7.png"),
+      IntroScreen1:await PIXI.Assets.load("/sourceAssets/introScreen/assets/frame1.png"),
+      IntroScreen2:await PIXI.Assets.load("/sourceAssets/introScreen/assets/frame2.png"),
+      lBtn : await PIXI.Assets.load("/sourceAssets/introScreen/assets/btn_arrow1.png"),
+      rBtn : await PIXI.Assets.load("/sourceAssets/introScreen/assets/btn_arrow2.png"),
+      idleIndicator:await PIXI.Assets.load("/sourceAssets/introScreen/assets/pager_base.png"),
+      activeIndicator:await PIXI.Assets.load("/sourceAssets/introScreen/assets/pager_marker.png"),
+      playBtnNormal:await PIXI.Assets.load("/sourceAssets/introScreen/assets/prePlayBtn_normal.png"),
+      playBtnHover:await PIXI.Assets.load("/sourceAssets/introScreen/assets/prePlayBtn_hover.png"),
+      playScreen:await PIXI.Assets.load("/sourceAssets/reelFrame/assets/reelframe.png"),
+      playScreenBg:await PIXI.Assets.load("/sourceAssets/reelFrame/assets/reelFrameBG.png"),
+      incBtn:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/plusIcon_normal.png"),
+      decBtn:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/minusIcon_normal.png"),
+      stakeBg:await PIXI.Assets.load("/sourceAssets/gamePanel/newPanel/assets/darkBalance_bg.png"),
+      
+    };
+
+    return this.textures;
+  }
+}
