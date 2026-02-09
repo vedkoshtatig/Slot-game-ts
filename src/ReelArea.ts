@@ -4,12 +4,14 @@ import { StakeControl } from "./StakeControl";
 
 export class ReelArea extends PIXI.Container {
   // config
-  resultMatrix: number[][];
+  payLines: number[][];
+  resultMatrix: number[][][];
   reelCount = 5;
-  rowsCount = 6;
+  rowsCount = 5;
   symbolSize = 130;
   reelGap = 41;
   symbolGapY = 20;
+  reels: PIXI.Container[] = [];
 
   spinSpeed = 45;
   fallSpeed = 45;
@@ -30,18 +32,55 @@ export class ReelArea extends PIXI.Container {
   normalSymbolTextures: PIXI.Texture[];
   blurSymbolTextures: PIXI.Texture[];
   //State
+  currentMatrix: number[][] | null = null;
 
-  resState:number
+  resState: number;
   constructor(app: PIXI.Application, stakeControl: StakeControl) {
     super();
     this.app = app;
-    this.resState=0;
+    this.resState = 0;
+    this.payLines = [
+      [1, 1, 1, 1, 1], 
+      [2, 2, 2, 2, 2],
+      [3, 3, 3, 3, 3],
+      [1, 2, 3, 2, 1], // V shape within visible area
+      [3, 2, 1, 2, 3],
+    ];
+
     this.resultMatrix = [
-      [0, 3, 4, 5, 1, 4], // reel 0
-      [1, 1, 4, 0, 2, 3], // reel 1
-      [1, 6, 4, 11, 4, 0], // reel 2
-      [3, 0, 4, 5, 5, 2], // reel 3
-      [4, 1, 4, 3, 2, 5], // reel 4
+      // Matrix 1
+      [
+        [0, 3, 11, 5, 1],
+        [1, 1, 11, 0, 2],
+        [1, 6, 11, 11, 4],
+        [3, 0, 11, 5, 5],
+        [4, 1, 11, 3, 2],
+      ],
+
+      // Matrix 2
+      [
+        [5, 6, 2, 9, 11],
+        [4, 1, 2, 0, 5],
+        [1, 1, 2, 1, 1],
+        [3, 5, 2, 2, 4],
+        [6, 4, 2, 3, 1],
+      ],
+
+      // Matrix 3
+      [
+        [5, 4, 3, 2, 1],
+        [0, 1, 3, 3, 4],
+        [4, 4, 3, 4, 4],
+        [2, 3, 3, 1, 0],
+        [1, 0, 3, 3, 5],
+      ],
+      [
+        [5, 4, 6, 2, 1],
+        [0, 1, 6, 3, 4],
+        [4, 4, 6, 4, 4],
+        [2, 3, 6, 1, 0],
+        [1, 0, 6, 3, 5],
+      ],
     ];
 
     this.normalSymbolTextures = SymbolLoader.symbols.normal;
@@ -55,44 +94,59 @@ export class ReelArea extends PIXI.Container {
 
     this.reelsContainer.y = -this.reelHeight;
 
-    //     window.addEventListener("keydown", (e) => {
-    //   if (e.code === "Space") {
-    //     if(!this.isBlurSpinning){
-    //         this.spin();
-    //     this.StakeControl.UpdateBalance()}
-
-    //   }
-    // });
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        if (!this.isBlurSpinning) {
+          this.spin();
+          this.StakeControl.UpdateBalance();
+        }
+      }
+    });
   }
+
   get reelHeight() {
     return this.rowsCount * (this.symbolSize + this.symbolGapY);
   }
 
-  spin() {
-    if (this.isSpinning) return; 
-    this.isSpinning = true;
-    if(this.resState<3){ 
-      this.spawnNormalReels(); 
-      this.resState+=1;
-    }else if(this.resState===3){
-      this.spawnResultReels(this.resultMatrix);
-       this.resState=0
-    }
-    // this.spawnNormalReels(); 
-    // this.spawnResultReels(this.resultMatrix);
+  getRandomResultMatrix(): number[][] {
+    const index = Math.floor(Math.random() * this.resultMatrix.length);
+    return this.resultMatrix[index];
+  }
 
-    // reset position for next spin
+  spin() {
+    if (this.isSpinning) return;
+    this.isSpinning = true;
+    const randomMatrix = this.getRandomResultMatrix();
+    this.currentMatrix = randomMatrix;
+
+    if (this.resState < 2) {
+      // normal random spins
+      this.spawnNormalReels();
+      this.resState++;
+    } else {
+      // predefined result spin
+      this.spawnResultReels(randomMatrix);
+      this.resState = 0;
+    }
+
+    // pre difened
+    //  this.spawnResultReels(randomMatrix);
+    // random
+    // this.spawnNormalReels();
+
+    // reset position for fall animation
     this.reelsContainer.y = -this.reelHeight;
 
     this.startBlurSpin();
 
     setTimeout(() => {
       this.stopBlurSpin();
+    
     }, 1500);
 
     setTimeout(() => {
       this.startFall();
-    }, 1200);
+    }, 1000);
   }
 
   // MASK
@@ -114,8 +168,6 @@ export class ReelArea extends PIXI.Container {
 
   ///Initial Spawn destroyed at first spin
   initSpawnNormalReels() {
-   
-
     const totalWidth =
       this.reelCount * this.symbolSize + (this.reelCount - 1) * this.reelGap;
 
@@ -133,7 +185,7 @@ export class ReelArea extends PIXI.Container {
 
         const symbol = new PIXI.Sprite(tex);
         symbol.width = symbol.height = this.symbolSize;
-        symbol.y = j * (this.symbolSize + this.symbolGapY)+ this.reelHeight;
+        symbol.y = j * (this.symbolSize + this.symbolGapY) + this.reelHeight;
 
         reel.addChild(symbol);
       }
@@ -146,44 +198,64 @@ export class ReelArea extends PIXI.Container {
 
   spawnNormalReels() {
     this.reelsContainer.removeChildren();
+    this.reels = [];
+
+    const generatedMatrix: number[][] = [];
 
     const totalWidth =
       this.reelCount * this.symbolSize + (this.reelCount - 1) * this.reelGap;
 
-    const startX = this.app.screen.width / 2 + 63 - totalWidth / 2;
+    const startX = 765 + 63 - totalWidth / 2;
 
     for (let i = 0; i < this.reelCount; i++) {
       const reel = new PIXI.Container();
       reel.x = startX + i * (this.symbolSize + this.reelGap);
 
-      for (let j = 0; j < this.rowsCount; j++) {
-        const tex =
-          this.normalSymbolTextures[
-            Math.floor(Math.random() * this.normalSymbolTextures.length)
-          ];
+      (reel as any).symbols = [];
+      generatedMatrix[i] = [];
 
+      for (let j = 0; j < this.rowsCount; j++) {
+        const symbolIndex = Math.floor(
+          Math.random() *this.normalSymbolTextures.length
+        );
+
+        generatedMatrix[i][j] = symbolIndex;
+
+        const tex = this.normalSymbolTextures[symbolIndex];
         const symbol = new PIXI.Sprite(tex);
+
         symbol.width = symbol.height = this.symbolSize;
         symbol.y = j * (this.symbolSize + this.symbolGapY);
 
+        (symbol as any).symbolIndex = symbolIndex;
+
         reel.addChild(symbol);
+        (reel as any).symbols.push(symbol);
       }
 
       this.reelsContainer.addChild(reel);
+      this.reels.push(reel);
     }
+
+    this.currentMatrix = generatedMatrix;
   }
+
   // NORMAL REELS predifined result
+
   spawnResultReels(resultMatrix: number[][]) {
     this.reelsContainer.removeChildren();
+    this.reels = [];
 
     const totalWidth =
       this.reelCount * this.symbolSize + (this.reelCount - 1) * this.reelGap;
 
-    const startX = this.app.screen.width / 2 + 63 - totalWidth / 2;
+    const startX = 765 + 63 - totalWidth / 2;
 
     for (let i = 0; i < this.reelCount; i++) {
       const reel = new PIXI.Container();
       reel.x = startX + i * (this.symbolSize + this.reelGap);
+
+      (reel as any).symbols = [];
 
       for (let j = 0; j < this.rowsCount; j++) {
         const symbolIndex = resultMatrix[i][j];
@@ -191,16 +263,18 @@ export class ReelArea extends PIXI.Container {
 
         const symbol = new PIXI.Sprite(tex);
         symbol.width = symbol.height = this.symbolSize;
-        symbol.y = j * (this.symbolSize + this.symbolGapY) + 15; // spawn above
+        symbol.y = j * (this.symbolSize + this.symbolGapY);
+
+        (symbol as any).symbolIndex = symbolIndex;
 
         reel.addChild(symbol);
+        (reel as any).symbols.push(symbol);
       }
 
       this.reelsContainer.addChild(reel);
+      this.reels.push(reel);
     }
   }
-
-  
 
   // BLUR REELS
 
@@ -223,7 +297,7 @@ export class ReelArea extends PIXI.Container {
 
         const symbol = new PIXI.Sprite(tex);
         symbol.width = symbol.height = this.symbolSize;
-        symbol.y = j * this.symbolSize;
+        symbol.y = j * (this.symbolSize + this.symbolGapY);
 
         reel.addChild(symbol);
       }
@@ -238,7 +312,7 @@ export class ReelArea extends PIXI.Container {
     this.blurReelsContainer = container;
   }
 
-  //Ticker
+ 
   startBlurSpin() {
     if (this.isBlurSpinning) return;
 
@@ -258,14 +332,11 @@ export class ReelArea extends PIXI.Container {
         symbol.y += this.spinSpeed * ticker.deltaTime;
 
         // when symbol goes out of bottom
-        if (symbol.y >=this.rowsCount * (this.symbolSize + this.symbolGapY) - 100) {
+        if (
+          symbol.y >=
+          this.rowsCount * (this.symbolSize + this.symbolGapY) - 100
+        ) {
           symbol.y = 0;
-
-          // change texture for illusion
-          // const index = Math.floor(
-          //   Math.random() * this.blurSymbolTextures.length
-          // );
-          // symbol.texture = this.blurSymbolTextures[index];
         }
       }
     }
@@ -280,6 +351,88 @@ export class ReelArea extends PIXI.Container {
     this.blurReelsContainer.removeFromParent();
     this.blurReelsContainer.destroy({ children: true });
     this.blurReelsContainer = undefined;
+  }
+
+  checkWins() {
+    if (!this.currentMatrix) return [];
+
+    const matrix = this.currentMatrix; 
+    const wins: any[] = [];
+
+    this.payLines.forEach((payLine, payLineIndex) => {
+      let currentSymbol: number | null = null;
+      let count = 0;
+      let positions: { reel: number; row: number }[] = [];
+
+      for (let reel = 0; reel < this.reelCount; reel++) {
+        const row = payLine[reel];
+        const symbol = matrix[reel][row]; // 👈 use matrix instead
+
+        if (symbol === currentSymbol) {
+          count++;
+          positions.push({ reel, row });
+        } else {
+          currentSymbol = symbol;
+          count = 1;
+          positions = [{ reel, row }];
+        }
+
+        if (count >= 3) {
+          wins.push({
+            payLineIndex,
+            symbol,
+            count,
+            positions: [...positions],
+          });
+        }
+      }
+    });
+
+    return wins;
+  }
+
+  dimAllSymbols(alpha = 0.3) {
+    this.reels.forEach((reel: any) => {
+      reel.symbols.forEach((symbol: PIXI.Sprite) => {
+        symbol.alpha = alpha;
+      });
+    });
+  }
+
+  restoreAllSymbols() {
+    this.reels.forEach((reel: any) => {
+      reel.symbols.forEach((symbol: PIXI.Sprite) => {
+        symbol.alpha = 1;
+      });
+    });
+  }
+  highlightWinByAlpha(positions: { reel: number; row: number }[]) {
+    this.dimAllSymbols(0.3);
+
+    positions.forEach(({ reel, row }) => {
+      const symbol = (this.reels[reel] as any).symbols[row];
+      symbol.alpha = 1;
+      
+    });
+  }
+  playWinHighlights(wins: any[]) {
+    if (!wins.length) return;
+
+    let index = 0;
+
+    const playNext = () => {
+      if (index >= wins.length) {
+        setTimeout(() => this.restoreAllSymbols(), 400);
+        return;
+      }
+
+      this.highlightWinByAlpha(wins[index].positions);
+      index++;
+
+      setTimeout(playNext, 1000);
+    };
+
+    playNext();
   }
 
   //FALL
@@ -297,8 +450,11 @@ export class ReelArea extends PIXI.Container {
     if (this.reelsContainer.y >= 0) {
       this.reelsContainer.y = 0;
       this.isFalling = false;
-      this.isSpinning = false; // ✅ unlock next spin
+      this.isSpinning = false;
       this.app.ticker.remove(this.onFall, this);
+
+      const wins = this.checkWins();
+      this.playWinHighlights(wins);
     }
   }
 }

@@ -8,7 +8,7 @@ export class GameButtons extends PIXI.Container {
   autoSpinBtn!: PIXI.Sprite;
   turboSpinBtn!: PIXI.Sprite;
   autoSpinInterval?: number;
-  int!:number
+  int!: number;
   onSpin?: () => void;
 
   constructor(app: PIXI.Application) {
@@ -16,8 +16,7 @@ export class GameButtons extends PIXI.Container {
     this.app = app;
     this.textures = AssetLoader.textures;
     this.autoSpinState = 0;
-    
- 
+
     this.build();
   }
   build() {
@@ -56,46 +55,41 @@ export class GameButtons extends PIXI.Container {
     //Spintext
     this.spinBtn.on("pointerdown", () => {
       this.onSpin?.();
-       this.spinBtn.texture=this.textures.spinBtnDisabled
-       this.spinBtn.eventMode="none"
-         this.spinBtn.cursor = "none";
-       setTimeout(() => {
-    this.spinBtn.texture=this.textures.spinBtn
-    this.spinBtn.eventMode="static"
-      this.spinBtn.cursor = "pointer";
-
-  }, 1500);
+      this.spinBtn.texture = this.textures.spinBtnDisabled;
+      this.spinBtn.eventMode = "none";
+      this.spinBtn.cursor = "none";
+      setTimeout(() => {
+        this.spinBtn.texture = this.textures.spinBtn;
+        this.spinBtn.eventMode = "static";
+        this.spinBtn.cursor = "pointer";
+      }, 1400);
     });
-   
-   
+
     this.turboSpinBtn.on("pointerover", () => {
       this.turboSpinBtn.texture = this.textures.turboSpinBtnHover;
     });
 
-  
-    
     //Autospin funct
     this.autoSpinBtn.on("pointerdown", () => {
-    if (this.autoSpinState === 0) {
-    this.autoSpinBtn.texture = this.textures.autoSpinBtnDown;
+      if (this.autoSpinState === 0) {
+        this.autoSpinBtn.texture = this.textures.autoSpinBtnDown;
 
-    this.autoSpinInterval = window.setInterval(() => {
-      this.onSpin?.();
-    }, 1200);
+        this.autoSpinInterval = window.setInterval(() => {
+          this.onSpin?.();
+        }, 1200);
 
-    this.autoSpinState = 1;
-  } else {
-    this.autoSpinBtn.texture = this.textures.autoSpinBtn;
+        this.autoSpinState = 1;
+      } else {
+        this.autoSpinBtn.texture = this.textures.autoSpinBtn;
 
-    if (this.autoSpinInterval) {
-      clearInterval(this.autoSpinInterval);
-      this.autoSpinInterval = undefined;
-    }
+        if (this.autoSpinInterval) {
+          clearInterval(this.autoSpinInterval);
+          this.autoSpinInterval = undefined;
+        }
 
-    this.autoSpinState = 0;
-  }
-});
-
+        this.autoSpinState = 0;
+      }
+    });
 
     this.turboSpinBtn.on("pointerout", () => {
       this.turboSpinBtn.texture = this.textures.turboSpinBtn;

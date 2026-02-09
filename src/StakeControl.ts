@@ -10,7 +10,7 @@ export class StakeControl extends PIXI.Container {
     maxCount :number
     balanceText!: PIXI.Text;
 
-incBtn!: PIXI.Sprite;
+  incBtn!: PIXI.Sprite;
   decBtn!: PIXI.Sprite;
   constructor(app:PIXI.Application) { 
     super();
@@ -20,6 +20,7 @@ incBtn!: PIXI.Sprite;
     this.balance=10000;
     this.win =0;
     this.maxCount = 100;
+    
     this.build()
     this.updateStakeUI()
   }

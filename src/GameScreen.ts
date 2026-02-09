@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js"
 import {AssetLoader} from "./AssetLoader"
 import {StakeControl} from "./StakeControl"
-import {GameButtons} from ".//GameButtons"
+import {GameButtons} from "./GameButtons"
 import {ReelArea} from "./ReelArea"
 export class GameScreen extends PIXI.Container{
     textures: Record<string, PIXI.Texture >

@@ -15,7 +15,7 @@ export class IntroScreen extends PIXI.Container{
         this.build();
     }
     build(){
-        const gameLogo : PIXI.Sprite = new PIXI.Sprite(this.textures.gameLogo);
+        const gameLogo  = new PIXI.Sprite(this.textures.gameLogo);
         gameLogo.scale.set(0.119)
         gameLogo.anchor.set(0.5,0)
         gameLogo.position.set(this.app.screen.width/2,-3)
